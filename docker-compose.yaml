@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: boipuja-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: boipuja
+      POSTGRES_PASSWORD: boipuja
+      POSTGRES_DB: boipuja
+    ports:
+      - "5432:5432"
+    volumes:
+      - boipuja_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  boipuja_postgres_data:
