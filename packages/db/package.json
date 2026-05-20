@@ -1,0 +1,19 @@
+{
+  "name": "@boipuja/db",
+  "type": "module",
+  "private": "true",
+  "scripts": {
+    "drizzle-kit": "drizzle-kit",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "latest",
+    "pg": "latest"
+  },
+  "devDependencies": {
+    "drizzle-kit": "latest",
+    "@types/pg": "latest"
+  }
+}

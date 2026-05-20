@@ -1,0 +1,12 @@
+{
+  "name": "@boipuja/config",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./server": "./src/server-env.ts"
+  },
+  "dependencies": {
+    "zod": "latest",
+    "dotenv": "latest"
+  }
+}

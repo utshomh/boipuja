@@ -20,6 +20,9 @@
       ],
       "@boipuja/contracts/*": [
         "./packages/contracts/src/*"
+      ],
+      "@boipuja/config/server": [
+        "./packages/config/src/server-env.ts"
       ]
     }
   }
