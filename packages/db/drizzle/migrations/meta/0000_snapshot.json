@@ -1,5 +1,5 @@
 {
-  "id": "fe1ce946-892c-417f-b51d-4def19c6391d",
+  "id": "7e4c277a-54f4-4e93-a57f-6e4f0240220e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -269,13 +269,7 @@
           "name": "language",
           "type": "varchar(15)",
           "primaryKey": false,
-          "notNull": false
-        },
-        "canonical_isbn": {
-          "name": "canonical_isbn",
-          "type": "varchar(31)",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "cover_url": {
           "name": "cover_url",
@@ -314,11 +308,11 @@
           "method": "btree",
           "with": {}
         },
-        "books_canonical_isbn_idx": {
-          "name": "books_canonical_isbn_idx",
+        "books_language_idx": {
+          "name": "books_language_idx",
           "columns": [
             {
-              "expression": "canonical_isbn",
+              "expression": "language",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -332,21 +326,13 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "books_canonical_isbn_unique": {
-          "name": "books_canonical_isbn_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "canonical_isbn"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.editions": {
-      "name": "editions",
+    "public.book_files": {
+      "name": "book_files",
       "schema": "",
       "columns": {
         "id": {
@@ -362,43 +348,23 @@
           "primaryKey": false,
           "notNull": true
         },
-        "isbn_10": {
-          "name": "isbn_10",
-          "type": "varchar(15)",
+        "file_id": {
+          "name": "file_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uploaded_by_user_id": {
+          "name": "uploaded_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(127)",
           "primaryKey": false,
           "notNull": false
-        },
-        "isbn_13": {
-          "name": "isbn_13",
-          "type": "varchar(15)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "publisher": {
-          "name": "publisher",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "published_year": {
-          "name": "published_year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "page_count": {
-          "name": "page_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "format": {
-          "name": "format",
-          "type": "book_format",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'other'"
         },
         "created_at": {
           "name": "created_at",
@@ -406,18 +372,11 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
-        "editions_book_id_idx": {
-          "name": "editions_book_id_idx",
+        "book_files_book_id_idx": {
+          "name": "book_files_book_id_idx",
           "columns": [
             {
               "expression": "book_id",
@@ -431,11 +390,11 @@
           "method": "btree",
           "with": {}
         },
-        "editions_isbn_10_idx": {
-          "name": "editions_isbn_10_idx",
+        "book_files_file_id_idx": {
+          "name": "book_files_file_id_idx",
           "columns": [
             {
-              "expression": "isbn_10",
+              "expression": "file_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -446,11 +405,11 @@
           "method": "btree",
           "with": {}
         },
-        "editions_isbn_13_idx": {
-          "name": "editions_isbn_13_idx",
+        "book_files_uploaded_by_user_id_idx": {
+          "name": "book_files_uploaded_by_user_id_idx",
           "columns": [
             {
-              "expression": "isbn_13",
+              "expression": "uploaded_by_user_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -463,12 +422,38 @@
         }
       },
       "foreignKeys": {
-        "editions_book_id_books_id_fk": {
-          "name": "editions_book_id_books_id_fk",
-          "tableFrom": "editions",
+        "book_files_book_id_books_id_fk": {
+          "name": "book_files_book_id_books_id_fk",
+          "tableFrom": "book_files",
           "tableTo": "books",
           "columnsFrom": [
             "book_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "book_files_file_id_files_id_fk": {
+          "name": "book_files_file_id_files_id_fk",
+          "tableFrom": "book_files",
+          "tableTo": "files",
+          "columnsFrom": [
+            "file_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "book_files_uploaded_by_user_id_users_id_fk": {
+          "name": "book_files_uploaded_by_user_id_users_id_fk",
+          "tableFrom": "book_files",
+          "tableTo": "users",
+          "columnsFrom": [
+            "uploaded_by_user_id"
           ],
           "columnsTo": [
             "id"
@@ -479,18 +464,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "editions_isbn_10_unique": {
-          "name": "editions_isbn_10_unique",
+        "book_files_book_id_file_id_unique": {
+          "name": "book_files_book_id_file_id_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "isbn_10"
-          ]
-        },
-        "editions_isbn_13_unique": {
-          "name": "editions_isbn_13_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "isbn_13"
+            "book_id",
+            "file_id"
           ]
         }
       },
@@ -657,6 +636,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -712,12 +706,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "edition_id": {
-          "name": "edition_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "status": {
           "name": "status",
           "type": "reading_status",
@@ -741,7 +729,7 @@
         },
         "current_locator": {
           "name": "current_locator",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -852,19 +840,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "user_books_edition_id_editions_id_fk": {
-          "name": "user_books_edition_id_editions_id_fk",
-          "tableFrom": "user_books",
-          "tableTo": "editions",
-          "columnsFrom": [
-            "edition_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -1024,13 +999,13 @@
         },
         "locator_start": {
           "name": "locator_start",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
         "locator_end": {
           "name": "locator_end",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -1166,7 +1141,7 @@
         },
         "locator": {
           "name": "locator",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -1578,7 +1553,7 @@
         },
         "current_locator": {
           "name": "current_locator",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -2100,7 +2075,13 @@
         },
         "url": {
           "name": "url",
-          "type": "varchar(512)",
+          "type": "varchar(511)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filename": {
+          "name": "filename",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -2155,6 +2136,21 @@
           "method": "btree",
           "with": {}
         },
+        "filename_idx": {
+          "name": "filename_idx",
+          "columns": [
+            {
+              "expression": "filename",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "files_purpose_idx": {
           "name": "files_purpose_idx",
           "columns": [
@@ -2194,15 +2190,6 @@
     }
   },
   "enums": {
-    "public.book_format": {
-      "name": "book_format",
-      "schema": "public",
-      "values": [
-        "pdf",
-        "epub",
-        "other"
-      ]
-    },
     "public.file_purpose": {
       "name": "file_purpose",
       "schema": "public",

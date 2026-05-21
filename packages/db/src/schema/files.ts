@@ -3,8 +3,8 @@ import {
   timestamp,
   varchar,
   integer,
-  uuid,
   index,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 import { users } from "./users";
@@ -20,7 +20,8 @@ export const files = pgTable(
     }),
 
     key: varchar("key", { length: 255 }).notNull(),
-    url: varchar("url", { length: 512 }).notNull(),
+    url: varchar("url", { length: 511 }).notNull(),
+    filename: varchar("filename", { length: 255 }).notNull(),
 
     contentType: varchar("content_type", { length: 127 }).notNull(),
     sizeBytes: integer("size_bytes"),
@@ -35,6 +36,7 @@ export const files = pgTable(
   },
   (table) => ({
     ownerUserIdIdx: index("files_owner_user_id_idx").on(table.ownerUserId),
+    filenameIdx: index("filename_idx").on(table.filename),
     purposeIdx: index("files_purpose_idx").on(table.purpose),
   }),
 );

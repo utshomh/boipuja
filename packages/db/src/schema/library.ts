@@ -1,18 +1,19 @@
 import {
   pgTable,
+  primaryKey,
   timestamp,
   varchar,
   integer,
   numeric,
-  uuid,
-  text,
-  index,
-  primaryKey,
   unique,
+  index,
+  jsonb,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 import { users } from "./users";
-import { books, editions } from "./books";
+import { files } from "./files";
+import { books } from "./books";
 import { readingStatusEnum, visibilityEnum } from "./enums";
 
 export const userBooks = pgTable(
@@ -28,10 +29,6 @@ export const userBooks = pgTable(
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
 
-    editionId: uuid("edition_id").references(() => editions.id, {
-      onDelete: "set null",
-    }),
-
     status: readingStatusEnum("status").notNull().default("want_to_read"),
 
     rating: integer("rating"),
@@ -43,7 +40,7 @@ export const userBooks = pgTable(
       .notNull()
       .default("0"),
 
-    currentLocator: text("current_locator"),
+    currentLocator: jsonb("current_locator"),
 
     visibility: visibilityEnum("visibility").notNull().default("private"),
 
@@ -66,6 +63,42 @@ export const userBooks = pgTable(
     userIdIdx: index("user_books_user_id_idx").on(table.userId),
     bookIdIdx: index("user_books_book_id_idx").on(table.bookId),
     statusIdx: index("user_books_status_idx").on(table.status),
+  }),
+);
+
+export const bookFiles = pgTable(
+  "book_files",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+
+    fileId: uuid("file_id")
+      .notNull()
+      .references(() => files.id, { onDelete: "cascade" }),
+
+    uploadedByUserId: uuid("uploaded_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    label: varchar("label", { length: 127 }),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    uniqueBookFile: unique("book_files_book_id_file_id_unique").on(
+      table.bookId,
+      table.fileId,
+    ),
+    bookIdIdx: index("book_files_book_id_idx").on(table.bookId),
+    fileIdIdx: index("book_files_file_id_idx").on(table.fileId),
+    uploadedByUserIdIdx: index("book_files_uploaded_by_user_id_idx").on(
+      table.uploadedByUserId,
+    ),
   }),
 );
 
@@ -96,6 +129,7 @@ export const shelves = pgTable(
       table.name,
     ),
     userIdIdx: index("shelves_user_id_idx").on(table.userId),
+    nameIdx: index("name_idx").on(table.name),
   }),
 );
 

@@ -25,8 +25,8 @@ export const highlights = pgTable(
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
 
-    locatorStart: text("locator_start").notNull(),
-    locatorEnd: text("locator_end"),
+    locatorStart: jsonb("locator_start").notNull(),
+    locatorEnd: jsonb("locator_end"),
 
     textExcerpt: text("text_excerpt"),
 
@@ -65,7 +65,7 @@ export const notes = pgTable(
       onDelete: "cascade",
     }),
 
-    locator: text("locator"),
+    locator: jsonb("locator"),
 
     body: text("body").notNull(),
 

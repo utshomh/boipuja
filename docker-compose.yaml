@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18-alpine
     container_name: boipuja-postgres
     restart: unless-stopped
     environment:
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - boipuja_postgres_data:/var/lib/postgresql/data
+      - boipuja_postgres_data:/var/lib/postgresql
 
 volumes:
   boipuja_postgres_data:

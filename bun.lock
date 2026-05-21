@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "boi-puja",
@@ -11,10 +12,8 @@
     "packages/config": {
       "name": "@boipuja/config",
       "dependencies": {
-        "zod": "latest",
-      },
-      "devDependencies": {
         "dotenv": "latest",
+        "zod": "latest",
       },
     },
     "packages/db": {

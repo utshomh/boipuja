@@ -32,8 +32,6 @@ export const filePurposeValues = [
   "attachment",
 ] as const;
 
-export const bookFormatValues = ["pdf", "epub", "other"] as const;
-
 export const readingStatusEnum = pgEnum("reading_status", readingStatusValues);
 
 export const visibilityEnum = pgEnum("visibility", visibilityValues);
@@ -52,12 +50,9 @@ export const participantRoleEnum = pgEnum(
 
 export const filePurposeEnum = pgEnum("file_purpose", filePurposeValues);
 
-export const bookFormatEnum = pgEnum("book_format", bookFormatValues);
-
 export type ReadingStatus = (typeof readingStatusValues)[number];
 export type Visibility = (typeof visibilityValues)[number];
 export type SessionStatus = (typeof sessionStatusValues)[number];
 export type SessionSyncMode = (typeof sessionSyncModeValues)[number];
 export type ParticipantRole = (typeof participantRoleValues)[number];
 export type FilePurpose = (typeof filePurposeValues)[number];
-export type BookFormat = (typeof bookFormatValues)[number];

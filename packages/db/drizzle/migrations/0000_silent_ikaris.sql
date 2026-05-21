@@ -1,4 +1,3 @@
-CREATE TYPE "public"."book_format" AS ENUM('pdf', 'epub', 'other');--> statement-breakpoint
 CREATE TYPE "public"."file_purpose" AS ENUM('avatar', 'book_cover', 'book_file', 'attachment');--> statement-breakpoint
 CREATE TYPE "public"."participant_role" AS ENUM('host', 'moderator', 'participant');--> statement-breakpoint
 CREATE TYPE "public"."reading_status" AS ENUM('want_to_read', 'reading', 'finished', 'dropped');--> statement-breakpoint
@@ -37,27 +36,20 @@ CREATE TABLE "books" (
 	"title" varchar(255) NOT NULL,
 	"subtitle" varchar(255),
 	"description" text,
-	"language" varchar(15),
-	"canonical_isbn" varchar(31),
+	"language" varchar(15) NOT NULL,
 	"cover_url" varchar(255),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "books_canonical_isbn_unique" UNIQUE("canonical_isbn")
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "editions" (
+CREATE TABLE "book_files" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"book_id" uuid NOT NULL,
-	"isbn_10" varchar(15),
-	"isbn_13" varchar(15),
-	"publisher" varchar(255),
-	"published_year" integer,
-	"page_count" integer,
-	"format" "book_format" DEFAULT 'other' NOT NULL,
+	"file_id" uuid NOT NULL,
+	"uploaded_by_user_id" uuid NOT NULL,
+	"label" varchar(127),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "editions_isbn_10_unique" UNIQUE("isbn_10"),
-	CONSTRAINT "editions_isbn_13_unique" UNIQUE("isbn_13")
+	CONSTRAINT "book_files_book_id_file_id_unique" UNIQUE("book_id","file_id")
 );
 --> statement-breakpoint
 CREATE TABLE "shelf_books" (
@@ -81,11 +73,10 @@ CREATE TABLE "user_books" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"book_id" uuid NOT NULL,
-	"edition_id" uuid,
 	"status" "reading_status" DEFAULT 'want_to_read' NOT NULL,
 	"rating" integer,
 	"progress_percent" numeric(5, 2) DEFAULT '0' NOT NULL,
-	"current_locator" text,
+	"current_locator" jsonb,
 	"visibility" "visibility" DEFAULT 'private' NOT NULL,
 	"started_at" timestamp with time zone,
 	"finished_at" timestamp with time zone,
@@ -108,8 +99,8 @@ CREATE TABLE "highlights" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"book_id" uuid NOT NULL,
-	"locator_start" text NOT NULL,
-	"locator_end" text,
+	"locator_start" jsonb NOT NULL,
+	"locator_end" jsonb,
 	"text_excerpt" text,
 	"color" varchar(31) NOT NULL,
 	"visibility" "visibility" DEFAULT 'private' NOT NULL,
@@ -122,7 +113,7 @@ CREATE TABLE "notes" (
 	"user_id" uuid NOT NULL,
 	"book_id" uuid NOT NULL,
 	"highlight_id" uuid,
-	"locator" text,
+	"locator" jsonb,
 	"body" text NOT NULL,
 	"visibility" "visibility" DEFAULT 'private' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -154,7 +145,7 @@ CREATE TABLE "read_sessions" (
 	"title" varchar(255) NOT NULL,
 	"status" "session_status" DEFAULT 'scheduled' NOT NULL,
 	"sync_mode" "session_sync_mode" DEFAULT 'host_controlled' NOT NULL,
-	"current_locator" text,
+	"current_locator" jsonb,
 	"visibility" "visibility" DEFAULT 'private' NOT NULL,
 	"scheduled_at" timestamp with time zone,
 	"started_at" timestamp with time zone,
@@ -197,7 +188,8 @@ CREATE TABLE "files" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"owner_user_id" uuid,
 	"key" varchar(255) NOT NULL,
-	"url" varchar(512) NOT NULL,
+	"url" varchar(511) NOT NULL,
+	"filename" varchar(255) NOT NULL,
 	"content_type" varchar(127) NOT NULL,
 	"size_bytes" integer,
 	"purpose" "file_purpose" NOT NULL,
@@ -207,13 +199,14 @@ CREATE TABLE "files" (
 --> statement-breakpoint
 ALTER TABLE "book_authors" ADD CONSTRAINT "book_authors_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "book_authors" ADD CONSTRAINT "book_authors_author_id_authors_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."authors"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "editions" ADD CONSTRAINT "editions_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "book_files" ADD CONSTRAINT "book_files_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "book_files" ADD CONSTRAINT "book_files_file_id_files_id_fk" FOREIGN KEY ("file_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "book_files" ADD CONSTRAINT "book_files_uploaded_by_user_id_users_id_fk" FOREIGN KEY ("uploaded_by_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shelf_books" ADD CONSTRAINT "shelf_books_shelf_id_shelves_id_fk" FOREIGN KEY ("shelf_id") REFERENCES "public"."shelves"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shelf_books" ADD CONSTRAINT "shelf_books_user_book_id_user_books_id_fk" FOREIGN KEY ("user_book_id") REFERENCES "public"."user_books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shelves" ADD CONSTRAINT "shelves_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_books" ADD CONSTRAINT "user_books_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_books" ADD CONSTRAINT "user_books_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_books" ADD CONSTRAINT "user_books_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bookmarks" ADD CONSTRAINT "bookmarks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bookmarks" ADD CONSTRAINT "bookmarks_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "highlights" ADD CONSTRAINT "highlights_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -237,13 +230,14 @@ CREATE INDEX "users_email_idx" ON "users" USING btree ("email");--> statement-br
 CREATE INDEX "users_username_idx" ON "users" USING btree ("username");--> statement-breakpoint
 CREATE INDEX "authors_name_idx" ON "authors" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "books_title_idx" ON "books" USING btree ("title");--> statement-breakpoint
-CREATE INDEX "books_canonical_isbn_idx" ON "books" USING btree ("canonical_isbn");--> statement-breakpoint
-CREATE INDEX "editions_book_id_idx" ON "editions" USING btree ("book_id");--> statement-breakpoint
-CREATE INDEX "editions_isbn_10_idx" ON "editions" USING btree ("isbn_10");--> statement-breakpoint
-CREATE INDEX "editions_isbn_13_idx" ON "editions" USING btree ("isbn_13");--> statement-breakpoint
+CREATE INDEX "books_language_idx" ON "books" USING btree ("language");--> statement-breakpoint
+CREATE INDEX "book_files_book_id_idx" ON "book_files" USING btree ("book_id");--> statement-breakpoint
+CREATE INDEX "book_files_file_id_idx" ON "book_files" USING btree ("file_id");--> statement-breakpoint
+CREATE INDEX "book_files_uploaded_by_user_id_idx" ON "book_files" USING btree ("uploaded_by_user_id");--> statement-breakpoint
 CREATE INDEX "shelf_books_shelf_id_idx" ON "shelf_books" USING btree ("shelf_id");--> statement-breakpoint
 CREATE INDEX "shelf_books_user_book_id_idx" ON "shelf_books" USING btree ("user_book_id");--> statement-breakpoint
 CREATE INDEX "shelves_user_id_idx" ON "shelves" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "name_idx" ON "shelves" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "user_books_user_id_idx" ON "user_books" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_books_book_id_idx" ON "user_books" USING btree ("book_id");--> statement-breakpoint
 CREATE INDEX "user_books_status_idx" ON "user_books" USING btree ("status");--> statement-breakpoint
@@ -271,4 +265,5 @@ CREATE INDEX "follows_following_id_idx" ON "follows" USING btree ("following_id"
 CREATE INDEX "reviews_user_id_idx" ON "reviews" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "reviews_book_id_idx" ON "reviews" USING btree ("book_id");--> statement-breakpoint
 CREATE INDEX "files_owner_user_id_idx" ON "files" USING btree ("owner_user_id");--> statement-breakpoint
+CREATE INDEX "filename_idx" ON "files" USING btree ("filename");--> statement-breakpoint
 CREATE INDEX "files_purpose_idx" ON "files" USING btree ("purpose");

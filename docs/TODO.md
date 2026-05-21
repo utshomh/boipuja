@@ -26,7 +26,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [x] Add root TypeScript config
 - [x] Add Docker Postgres
 - [x] Add `.env.example`
-- [ ] Add DB package
+- [x] Add DB package
 - [ ] Add contracts package
 - [ ] Add API app
 - [ ] Add OpenAPI docs
@@ -37,25 +37,27 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 
 ## Phase 1: Database Foundation
 
-- [ ] Add users table
-- [ ] Add books table
-- [ ] Add authors table
-- [ ] Add book_authors table
-- [ ] Add editions table
-- [ ] Add user_books table
-- [ ] Add shelves table
-- [ ] Add shelf_books table
-- [ ] Add highlights table
-- [ ] Add notes table
-- [ ] Add read_sessions table
-- [ ] Add read_session_participants table
-- [ ] Add read_session_messages table
-- [ ] Add follows table
-- [ ] Add reviews table
-- [ ] Add files table
-- [ ] Generate first migration
-- [ ] Run first migration
-- [ ] Open Drizzle Studio
+- [x] Add users table
+- [x] Add books table
+- [x] Add files table
+- [x] Add authors table
+- [x] Add book_authors table
+- [x] Add book_files table
+- [x] Add user_books table
+- [x] Add shelves table
+- [x] Add shelf_books table
+- [x] Add highlights table
+- [x] Add notes table
+- [x] Add bookmark table
+- [x] Add read_sessions table
+- [x] Add read_session_participants table
+- [x] Add read_session_messages table
+- [x] Add follows table
+- [x] Add reviews table
+- [x] Add activity_events table
+- [x] Generate first migration
+- [x] Run first migration
+- [x] Open Drizzle Studio
 
 ---
 
@@ -82,7 +84,6 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add authors properly without duplicates
 - [ ] Add ISBN duplicate detection
 - [ ] Add cover image support
-- [ ] Add edition support
 - [ ] Add seed data for public-domain books
 
 ---

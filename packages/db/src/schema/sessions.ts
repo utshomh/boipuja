@@ -1,11 +1,12 @@
 import {
   pgTable,
   timestamp,
+  varchar,
+  unique,
+  index,
+  jsonb,
   uuid,
   text,
-  varchar,
-  index,
-  unique,
 } from "drizzle-orm/pg-core";
 
 import { users } from "./users";
@@ -38,7 +39,7 @@ export const readSessions = pgTable(
       .notNull()
       .default("host_controlled"),
 
-    currentLocator: text("current_locator"),
+    currentLocator: jsonb("current_locator"),
 
     visibility: visibilityEnum("visibility").notNull().default("private"),
 

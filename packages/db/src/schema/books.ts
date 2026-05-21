@@ -1,15 +1,12 @@
 import {
   pgTable,
+  primaryKey,
   timestamp,
   varchar,
-  integer,
+  index,
   uuid,
   text,
-  index,
-  primaryKey,
 } from "drizzle-orm/pg-core";
-
-import { bookFormatEnum } from "./enums";
 
 export const books = pgTable(
   "books",
@@ -20,8 +17,7 @@ export const books = pgTable(
     subtitle: varchar("subtitle", { length: 255 }),
     description: text("description"),
 
-    language: varchar("language", { length: 15 }),
-    canonicalIsbn: varchar("canonical_isbn", { length: 31 }).unique(),
+    language: varchar("language", { length: 15 }).notNull(),
 
     coverUrl: varchar("cover_url", { length: 255 }),
 
@@ -35,7 +31,7 @@ export const books = pgTable(
   },
   (table) => ({
     titleIdx: index("books_title_idx").on(table.title),
-    canonicalIsbnIdx: index("books_canonical_isbn_idx").on(table.canonicalIsbn),
+    languageIdx: index("books_language_idx").on(table.language),
   }),
 );
 
@@ -70,39 +66,5 @@ export const bookAuthors = pgTable(
     pk: primaryKey({
       columns: [table.bookId, table.authorId],
     }),
-  }),
-);
-
-export const editions = pgTable(
-  "editions",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-
-    bookId: uuid("book_id")
-      .notNull()
-      .references(() => books.id, { onDelete: "cascade" }),
-
-    isbn10: varchar("isbn_10", { length: 15 }).unique(),
-    isbn13: varchar("isbn_13", { length: 15 }).unique(),
-
-    publisher: varchar("publisher", { length: 255 }),
-    publishedYear: integer("published_year"),
-
-    pageCount: integer("page_count"),
-
-    format: bookFormatEnum("format").notNull().default("other"),
-
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    bookIdIdx: index("editions_book_id_idx").on(table.bookId),
-    isbn10Idx: index("editions_isbn_10_idx").on(table.isbn10),
-    isbn13Idx: index("editions_isbn_13_idx").on(table.isbn13),
   }),
 );
