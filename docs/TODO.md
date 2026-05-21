@@ -67,12 +67,12 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [x] Add register endpoint
 - [x] Add login endpoint
 - [x] Add logout endpoint
-- [ ] Add get current user endpoint
+- [x] Add get current user endpoint
 - [x] Hash passwords with Bun
 - [x] Decide session strategy: cookie session
 - [ ] Add auth middleware
-- [ ] Add route protection
-- [ ] Add OpenAPI auth docs
+- [x] Add route protection
+- [x] Add OpenAPI auth docs
 
 ---
 

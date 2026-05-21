@@ -13,6 +13,7 @@ import {
 
 import { toMeDto } from "../users/mappers";
 import { conflict, unauthorized } from "../http";
+import { normalize, normalizeToLowerCase } from "../utils/normalizers";
 import {
   createSessionToken,
   getSessionCookieMaxAge,
@@ -20,14 +21,6 @@ import {
   hashSessionToken,
   SESSION_COOKIE_NAME,
 } from "../auth/session";
-
-function normalizeToLowerCase(value: string) {
-  return value.trim().toLowerCase();
-}
-
-function normalize(value: string) {
-  return value.trim();
-}
 
 export const authRoutes = new Elysia({
   prefix: "/auth",
