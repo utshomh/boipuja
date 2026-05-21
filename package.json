@@ -8,10 +8,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:api": "bun --cwd apps/api dev",
-    "db:generate": "bun --cwd packages/db drizzle-kit generate",
-    "db:migrate": "bun --cwd packages/db drizzle-kit migrate",
-    "db:studio": "bun --cwd packages/db drizzle-kit studio",
+    "dev:api": "bun --env-file=.env.development --watch apps/api/src/index.ts",
+    "db:generate": "bun --cwd packages/db --env-file=../../.env.development drizzle-kit generate",
+    "db:migrate": "bun --cwd packages/db --env-file=../../.env.development drizzle-kit migrate",
+    "db:studio": "bun --cwd packages/db --env-file=../../.env.development drizzle-kit studio",
+    "db:reset:test": "bun --cwd packages/db --env-file=../../.env.test scripts/reset-test-db.ts",
+    "db:migrate:test": "bun --cwd packages/db --env-file=../../.env.test drizzle-kit migrate",
+    "db:studio:test": "bun --cwd packages/db --env-file=../../.env.test drizzle-kit studio",
+    "test:api": "bun test --env-file=.env.test apps/api/src/**/*.test.ts",
+    "test:api:fresh": "bun run db:reset:test && bun run db:migrate:test && bun run test:api",
     "typecheck": "bunx tsc --noEmit"
   },
   "devDependencies": {

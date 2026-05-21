@@ -1,5 +1,3 @@
-import { and, eq, gt, isNull } from "drizzle-orm";
-import { authSessions, db, users } from "@boipuja/db";
 import { randomBytes, createHash } from "node:crypto";
 
 export const SESSION_COOKIE_NAME = "boipuja_cookie";
