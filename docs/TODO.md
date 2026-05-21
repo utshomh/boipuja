@@ -63,16 +63,16 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 
 ## Phase 2: Auth
 
-- [ ] Replace fake user with real auth
-- [ ] Add register endpoint
-- [ ] Add login endpoint
-- [ ] Add logout endpoint
-- [ ] Add get current user endpoint
-- [ ] Hash passwords with Argon2 or bcrypt
-- [ ] Decide session strategy: cookie session or JWT
-- [ ] Add auth middleware
-- [ ] Add route protection
-- [ ] Add OpenAPI auth docs
+- [x] Ensure schema and contracts are full-proof.
+- [x] Add register endpoint
+- [x] Add login endpoint
+- [x] Add logout endpoint
+- [x] Add get current user endpoint
+- [x] Hash passwords with Bun
+- [x] Decide session strategy: cookie session
+- [x] Add auth middleware
+- [x] Add route protection
+- [x] Add OpenAPI auth docs
 
 ---
 
