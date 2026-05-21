@@ -9,6 +9,8 @@
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@boipuja/contracts": "workspace:*",
+    "@boipuja/config": "workspace:*",
     "drizzle-orm": "latest",
     "pg": "latest"
   },

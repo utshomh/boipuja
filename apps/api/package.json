@@ -1,0 +1,21 @@
+{
+  "name": "@boipuja/api",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@boipuja/contracts": "workspace:*",
+    "@boipuja/config": "workspace:*",
+    "@boipuja/db": "workspace:*",
+    "@elysiajs/swagger": "latest",
+    "@elysiajs/cors": "latest",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}

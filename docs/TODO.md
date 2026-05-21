@@ -28,10 +28,10 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [x] Add `.env.example`
 - [x] Add DB package
 - [x] Add contracts package
-- [ ] Add API app
-- [ ] Add OpenAPI docs
-- [ ] Confirm `/health` endpoint works
-- [ ] Confirm `/openapi` works
+- [x] Add API app
+- [x] Add OpenAPI docs
+- [x] Confirm `/health` endpoint works
+- [x] Confirm `/openapi` works
 
 ---
 
