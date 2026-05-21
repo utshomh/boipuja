@@ -27,7 +27,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [x] Add Docker Postgres
 - [x] Add `.env.example`
 - [x] Add DB package
-- [ ] Add contracts package
+- [x] Add contracts package
 - [ ] Add API app
 - [ ] Add OpenAPI docs
 - [ ] Confirm `/health` endpoint works
@@ -82,7 +82,6 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Get book by ID endpoint
 - [ ] Search books endpoint
 - [ ] Add authors properly without duplicates
-- [ ] Add ISBN duplicate detection
 - [ ] Add cover image support
 - [ ] Add seed data for public-domain books
 

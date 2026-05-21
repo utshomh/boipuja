@@ -1,0 +1,18 @@
+{
+  "name": "@boipuja/contracts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./users": "./src/users.ts",
+    "./books": "./src/books.ts",
+    "./enums": "./src/enums.ts",
+    "./common": "./src/common.ts",
+    "./library": "./src/library.ts",
+    "./realtime": "./src/realtime.ts",
+    "./enum-value": "./src/enum-values.ts"
+  },
+  "dependencies": {
+    "elysia": "latest"
+  }
+}
