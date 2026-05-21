@@ -21,6 +21,7 @@ export const PublicUserDto = t.Object({
 export const MeDto = t.Object({
   id: UuidString,
   email: t.String(),
+  emailVerified: t.Boolean(),
   username: t.String(),
   displayName: t.String(),
   avatarUrl: t.Nullable(t.String()),

@@ -3,6 +3,7 @@ import { swagger } from "@elysiajs/swagger";
 import { Elysia, t } from "elysia";
 
 import { healthRoutes } from "./routes/health";
+import { authRoutes } from "./routes/auth";
 
 export const app = new Elysia({ prefix: "/api/v1" })
   .use(
@@ -23,6 +24,14 @@ export const app = new Elysia({ prefix: "/api/v1" })
           {
             name: "Health",
             description: "API health and diagnostics.",
+          },
+          {
+            name: "Auth",
+            description: "Authentication and session management.",
+          },
+          {
+            name: "Users",
+            description: "Current user and user profile endpoints.",
           },
         ],
       },
@@ -47,6 +56,7 @@ export const app = new Elysia({ prefix: "/api/v1" })
       },
     },
   )
-  .use(healthRoutes);
+  .use(healthRoutes)
+  .use(authRoutes);
 
 export type App = typeof app;
