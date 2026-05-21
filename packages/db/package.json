@@ -8,6 +8,9 @@
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio"
   },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@boipuja/contracts": "workspace:*",
     "@boipuja/config": "workspace:*",

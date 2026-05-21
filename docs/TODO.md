@@ -63,7 +63,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 
 ## Phase 2: Auth
 
-- [ ] Replace fake user with real auth
+- [x] Ensure schema and contracts are full-proof.
 - [ ] Add register endpoint
 - [ ] Add login endpoint
 - [ ] Add logout endpoint
