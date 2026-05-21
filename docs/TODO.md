@@ -73,6 +73,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [x] Add auth middleware
 - [x] Add route protection
 - [x] Add OpenAPI auth docs
+- [x] Add tests
 
 ---
 
@@ -84,6 +85,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add authors properly without duplicates
 - [ ] Add cover image support
 - [ ] Add seed data for public-domain books
+- [ ] Add tests
 
 ---
 
@@ -98,6 +100,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add shelves
 - [ ] Add/remove books from shelves
 - [ ] Add privacy settings
+- [ ] Add tests
 
 ---
 
@@ -110,6 +113,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add notes
 - [ ] Add private/public visibility
 - [ ] Add endpoint to fetch all reader data for a book
+- [ ] Add tests
 
 ---
 
@@ -124,6 +128,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Store current host locator
 - [ ] Add participants table logic
 - [ ] Add session permissions
+- [ ] Add tests
 
 ---
 
@@ -137,6 +142,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Persist chat messages
 - [ ] Add reconnect behavior
 - [ ] Add rate limiting later
+- [ ] Add tests
 
 ---
 
@@ -150,6 +156,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Basic feed
 - [ ] Blocking
 - [ ] Reporting
+- [ ] Add tests
 
 ---
 
@@ -164,6 +171,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Validate MIME type
 - [ ] Add delete file support
 - [ ] Add migration path to Vercel Blob/R2/S3 later
+- [ ] Add tests
 
 ---
 
@@ -179,6 +187,7 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add reader page
 - [ ] Add read-along session page
 - [ ] Add chat UI
+- [ ] Add tests
 
 ---
 
@@ -189,3 +198,4 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 - [ ] Add frontend voice connection
 - [ ] Add mute/deafen
 - [ ] Add moderation controls
+- [ ] Add tests

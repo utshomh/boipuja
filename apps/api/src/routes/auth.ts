@@ -75,6 +75,7 @@ export const authRoutes = new Elysia({
         maxAge: getSessionCookieMaxAge(),
       });
 
+      set.status = 201;
       return { user: toMeDto(createdUser) };
     },
     {
@@ -142,7 +143,7 @@ export const authRoutes = new Elysia({
       body: LoginBody,
       response: {
         200: AuthUserResponseDto,
-        409: ErrorDto,
+        401: ErrorDto,
       },
       detail: {
         tags: ["Auth"],

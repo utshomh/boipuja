@@ -1,10 +1,4 @@
 import { z } from "zod";
-import dotenv from "dotenv";
-import path from "node:path";
-
-dotenv.config({
-  path: path.resolve(process.cwd(), "../../.env"),
-});
 
 const serverEnvSchema = z.object({
   NODE_ENV: z
@@ -20,15 +14,17 @@ const serverEnvSchema = z.object({
       "DATABASE_URL must be a valid PostgreSQL connection string",
     ),
 
-  API_HOST: z.string().default("localhost"),
+  API_HOST: z.string().min(1, "API_HOST is required"),
 
-  API_PORT: z.coerce.number().int().positive().default(3000),
+  API_PORT: z.coerce.number().int().positive(),
 
-  CORS_ORIGIN: z.string().url().default("http://localhost:5173"),
+  CORS_ORIGIN: z.string().url(),
 
-  CLOUDINARY_CLOUD_NAME: z.string().min(1, "DATABASE_URL is required"),
-  CLOUDINARY_API_KEY: z.string().min(1, "DATABASE_URL is required"),
-  CLOUDINARY_API_SECRET: z.string().min(1, "DATABASE_URL is required"),
+  CLOUDINARY_CLOUD_NAME: z.string().min(1, "CLOUDINARY_CLOUD_NAME is required"),
+
+  CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required"),
+
+  CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required"),
 });
 
 const parsed = serverEnvSchema.safeParse(process.env);
@@ -41,8 +37,6 @@ if (!parsed.success) {
   for (const [key, messages] of Object.entries(errors)) {
     console.error(`${key}: ${messages?.join(", ")}`);
   }
-
-  console.error("\nCheck your root .env file.\n");
 
   throw new Error("Invalid server environment variables");
 }

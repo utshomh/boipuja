@@ -1,10 +1,10 @@
+import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { Elysia, t } from "elysia";
 
-import { healthRoutes } from "./routes/health";
-import { authRoutes } from "./routes/auth";
 import { meRoutes } from "./routes/me";
+import { authRoutes } from "./routes/auth";
+import { healthRoutes } from "./routes/health";
 
 export const app = new Elysia({ prefix: "/api/v1" })
   .use(

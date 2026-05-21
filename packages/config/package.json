@@ -3,10 +3,10 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./server": "./src/server-env.ts"
+    "./server": "./src/server-env.ts",
+    "./database": "./src/database-env.ts"
   },
   "dependencies": {
-    "zod": "latest",
-    "dotenv": "latest"
+    "zod": "latest"
   }
 }

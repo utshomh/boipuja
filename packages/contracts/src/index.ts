@@ -1,4 +1,6 @@
 export * from "./auth";
+export * from "./users";
+export * from "./files";
 export * from "./enums";
 export * from "./books";
 export * from "./common";
