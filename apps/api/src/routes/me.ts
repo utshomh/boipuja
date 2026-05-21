@@ -6,28 +6,19 @@ import { ErrorDto } from "@boipuja/contracts";
 import { users } from "@boipuja/db/schema";
 import { MeDto, UpdateMeBody } from "@boipuja/contracts/users";
 
-import { unauthorized } from "../http";
 import { toMeDto } from "../users/mappers";
+import { authPlugin } from "../auth/plugin";
 import { normalize, normalizeToLowerCase } from "../utils/normalizers";
-import { getCurrentUserFromCookie, SESSION_COOKIE_NAME } from "../auth/session";
 
 export const meRoutes = new Elysia()
+  .use(authPlugin)
   .get(
     "/me",
-    async ({ cookie, set }) => {
-      const sessionToken = cookie[SESSION_COOKIE_NAME]?.value;
-      const user = await getCurrentUserFromCookie(
-        sessionToken ? String(sessionToken) : undefined,
-      );
-
-      if (!user) {
-        set.status = 401;
-        return unauthorized("You must be logged in.");
-      }
-
+    async ({ user }) => {
       return toMeDto(user);
     },
     {
+      requireAuth: true,
       response: {
         200: MeDto,
         401: ErrorDto,
@@ -40,17 +31,7 @@ export const meRoutes = new Elysia()
   )
   .patch(
     "/me",
-    async ({ body, cookie, set }) => {
-      const sessionToken = cookie[SESSION_COOKIE_NAME]?.value;
-      const user = await getCurrentUserFromCookie(
-        sessionToken ? String(sessionToken) : undefined,
-      );
-
-      if (!user) {
-        set.status = 401;
-        return unauthorized("You must be logged in.");
-      }
-
+    async ({ body, user }) => {
       const username = body.username
         ? normalizeToLowerCase(body.username)
         : user.username;
@@ -73,6 +54,7 @@ export const meRoutes = new Elysia()
       return toMeDto(updatedUser);
     },
     {
+      requireAuth: true,
       body: UpdateMeBody,
       response: {
         200: MeDto,
