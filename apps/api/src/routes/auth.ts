@@ -11,7 +11,7 @@ import {
   RegisterBody,
 } from "@boipuja/contracts";
 
-import { toMeDto } from "../users/mappers";
+import { toMeDto } from "../mappers/users";
 import { conflict, unauthorized } from "../http";
 import { normalize, normalizeToLowerCase } from "../utils/normalizers";
 import {

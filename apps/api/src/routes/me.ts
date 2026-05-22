@@ -6,7 +6,7 @@ import { users } from "@boipuja/db/schema";
 import { ErrorDto, MeDto, UpdateMeBody } from "@boipuja/contracts";
 
 import { conflict } from "../http";
-import { toMeDto } from "../users/mappers";
+import { toMeDto } from "../mappers/users";
 import { authPlugin } from "../auth/plugin";
 import { normalize, normalizeToLowerCase } from "../utils/normalizers";
 

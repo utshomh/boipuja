@@ -4,6 +4,7 @@ import { swagger } from "@elysiajs/swagger";
 
 import { meRoutes } from "./routes/me";
 import { authRoutes } from "./routes/auth";
+import { booksRoutes } from "./routes/books";
 import { healthRoutes } from "./routes/health";
 
 export const app = new Elysia({ prefix: "/api/v1" })
@@ -34,6 +35,10 @@ export const app = new Elysia({ prefix: "/api/v1" })
             name: "Users",
             description: "Current user and user profile endpoints.",
           },
+          {
+            name: "Books",
+            description: "Book management endpoints.",
+          },
         ],
       },
     }),
@@ -59,6 +64,7 @@ export const app = new Elysia({ prefix: "/api/v1" })
   )
   .use(healthRoutes)
   .use(authRoutes)
-  .use(meRoutes);
+  .use(meRoutes)
+  .use(booksRoutes);
 
 export type App = typeof app;

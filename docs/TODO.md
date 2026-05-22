@@ -79,13 +79,12 @@ Build the backend foundation for Boipuja: a social book reading platform with li
 
 ## Phase 3: Books
 
-- [ ] Create book endpoint
-- [ ] Get book by ID endpoint
+- [x] Create book endpoint
+- [x] Get book by ID endpoint
 - [ ] Search books endpoint
-- [ ] Add authors properly without duplicates
+- [x] Add authors properly without duplicates
 - [ ] Add cover image support
-- [ ] Add seed data for public-domain books
-- [ ] Add tests
+- [x] Add tests
 
 ---
 
