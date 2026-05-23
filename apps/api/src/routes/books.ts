@@ -1,22 +1,38 @@
 import { Elysia, t, type Static } from "elysia";
-import { desc, eq, inArray } from "drizzle-orm";
+import {
+  and,
+  countDistinct,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  SQL,
+} from "drizzle-orm";
 
 import { db, userBooks } from "@boipuja/db";
 import { authors, bookAuthors, books } from "@boipuja/db/schema";
 import {
   BookDto,
+  BooksSearchResponseDto,
   CreateBookBody,
   ErrorDto,
+  SearchBooksQuery,
   UuidString,
 } from "@boipuja/contracts";
 
 import { notFound } from "../http";
 import { authPlugin } from "../auth/plugin";
-import { AuthorRow, BookResponse, toBookDto } from "../mappers/books";
 import {
   normalizeBookText,
   normalizeOptionalBookText,
 } from "../utils/normalizers";
+import {
+  AuthorRow,
+  BookResponse,
+  toBookDto,
+  toBookDtos,
+} from "../mappers/books";
 
 async function getOrCreateAuthor(name: string) {
   const normalizedName = normalizeBookText(name);
@@ -101,6 +117,72 @@ async function listBooks(): Promise<BookResponse[]> {
   );
 }
 
+async function searchBooks(input: Static<typeof SearchBooksQuery>) {
+  const page = input.page ?? 1;
+  const limit = input.limit ?? 10;
+  const offset = (page - 1) * limit;
+
+  const filters: SQL[] = [];
+
+  const normalizedQuery = normalizeOptionalBookText(input.query);
+  const normalizedLanguage = normalizeOptionalBookText(input.language);
+
+  if (normalizedQuery) {
+    const pattern = `%${normalizedQuery}%`;
+
+    const searchFilter = or(
+      ilike(books.title, pattern),
+      ilike(books.subtitle, pattern),
+      ilike(authors.name, pattern),
+    );
+
+    if (searchFilter) {
+      filters.push(searchFilter);
+    }
+  }
+
+  if (normalizedLanguage) {
+    filters.push(eq(books.language, normalizedLanguage));
+  }
+
+  const where = filters.length > 0 ? and(...filters) : undefined;
+
+  const [countRow] = await db
+    .select({
+      total: countDistinct(books.id),
+    })
+    .from(books)
+    .leftJoin(bookAuthors, eq(bookAuthors.bookId, books.id))
+    .leftJoin(authors, eq(authors.id, bookAuthors.authorId))
+    .where(where);
+
+  const rows = await db
+    .selectDistinct({
+      book: books,
+    })
+    .from(books)
+    .leftJoin(bookAuthors, eq(bookAuthors.bookId, books.id))
+    .leftJoin(authors, eq(authors.id, bookAuthors.authorId))
+    .where(where)
+    .orderBy(desc(books.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  const total = Number(countRow?.total ?? 0);
+  const bookRows = rows.map((row) => row.book);
+  const items = await toBookDtos(bookRows);
+
+  return {
+    items,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+
 export const booksRoutes = new Elysia({ prefix: "/books" })
   .use(authPlugin)
   .post(
@@ -157,6 +239,29 @@ export const booksRoutes = new Elysia({ prefix: "/books" })
         tags: ["Books"],
         summary: "Create book",
         description: "Creates a book record and attaches one or more authors.",
+      },
+    },
+  )
+  .get(
+    "/search",
+    async ({ query }) => {
+      return searchBooks({
+        query: query.query,
+        language: query.language,
+        page: query.page,
+        limit: query.limit,
+      });
+    },
+    {
+      query: SearchBooksQuery,
+      response: {
+        200: BooksSearchResponseDto,
+      },
+      detail: {
+        tags: ["Books"],
+        summary: "Search books",
+        description:
+          "Searches books by title, subtitle, author name, and language.",
       },
     },
   )

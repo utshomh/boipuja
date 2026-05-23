@@ -1,7 +1,8 @@
 import { Static } from "elysia";
+import { eq, inArray } from "drizzle-orm";
 
 import { BookDto } from "@boipuja/contracts";
-import { authors, books } from "@boipuja/db";
+import { authors, bookAuthors, books, db } from "@boipuja/db";
 
 export type BookResponse = Static<typeof BookDto>;
 export type BookRow = typeof books.$inferSelect;
@@ -24,4 +25,34 @@ export function toBookDto(
     })),
     files: [],
   } satisfies BookResponse;
+}
+
+export async function toBookDtos(bookRows: BookRow[]): Promise<BookResponse[]> {
+  if (bookRows.length === 0) {
+    return [];
+  }
+
+  const bookIds = bookRows.map((book) => book.id);
+
+  const authorRows = await db
+    .select({
+      bookId: bookAuthors.bookId,
+      author: authors,
+    })
+    .from(bookAuthors)
+    .innerJoin(authors, eq(bookAuthors.authorId, authors.id))
+    .where(inArray(bookAuthors.bookId, bookIds));
+
+  const authorsByBookId = new Map<string, AuthorRow[]>();
+
+  for (const row of authorRows) {
+    const existingAuthors = authorsByBookId.get(row.bookId) ?? [];
+
+    existingAuthors.push(row.author);
+    authorsByBookId.set(row.bookId, existingAuthors);
+  }
+
+  return bookRows.map((book) =>
+    toBookDto(book, authorsByBookId.get(book.id) ?? []),
+  );
 }

@@ -1,7 +1,7 @@
 import { t } from "elysia";
 
 import { FileDto } from "./files";
-import { UuidString } from "./common";
+import { UuidString, PaginationMetaDto, PaginationQuery } from "./common";
 
 export const AuthorDto = t.Object({
   id: UuidString,
@@ -36,4 +36,17 @@ export const CreateBookBody = t.Object({
   authors: t.Array(t.String({ minLength: 1 }), {
     minItems: 1,
   }),
+});
+
+export const SearchBooksQuery = t.Composite([
+  PaginationQuery,
+  t.Object({
+    query: t.Optional(t.String()),
+    language: t.Optional(t.String()),
+  }),
+]);
+
+export const BooksSearchResponseDto = t.Object({
+  items: t.Array(BookDto),
+  meta: PaginationMetaDto,
 });
