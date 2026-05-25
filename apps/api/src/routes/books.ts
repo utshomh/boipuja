@@ -196,7 +196,7 @@ export const booksRoutes = new Elysia({ prefix: "/books" })
       ];
 
       return await db.transaction(async (tx) => {
-        const [createdBook] = await db
+        const [createdBook] = await tx
           .insert(books)
           .values({
             title,
@@ -211,14 +211,14 @@ export const booksRoutes = new Elysia({ prefix: "/books" })
           authorNames.map((authorName) => getOrCreateAuthor(authorName)),
         );
 
-        await db.insert(bookAuthors).values(
+        await tx.insert(bookAuthors).values(
           authorRows.map((author) => ({
             bookId: createdBook.id,
             authorId: author.id,
           })),
         );
 
-        await db.insert(userBooks).values({
+        await tx.insert(userBooks).values({
           userId: user.id,
           bookId: createdBook.id,
         });

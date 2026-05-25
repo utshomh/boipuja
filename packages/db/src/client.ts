@@ -1,11 +1,11 @@
 import PG from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-import { serverEnv } from "@boipuja/config/server";
+import { databaseEnv } from "@boipuja/config/database";
 
 const { Pool } = PG;
 
-const connectionString = serverEnv.DATABASE_URL;
+const connectionString = databaseEnv.DATABASE_URL;
 
 const pool = new Pool({
   connectionString,
