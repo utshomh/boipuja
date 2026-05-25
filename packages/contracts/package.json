@@ -11,7 +11,8 @@
     "./common": "./src/common.ts",
     "./library": "./src/library.ts",
     "./realtime": "./src/realtime.ts",
-    "./enum-value": "./src/enum-values.ts"
+    "./enum-value": "./src/enum-values.ts",
+    "./enum-values": "./src/enum-values.ts"
   },
   "dependencies": {
     "elysia": "latest"

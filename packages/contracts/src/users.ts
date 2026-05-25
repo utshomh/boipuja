@@ -31,8 +31,8 @@ export const MeDto = t.Object({
 });
 
 export const UpdateMeBody = t.Object({
-  username: t.Optional(t.String({ minLength: 1 })),
-  displayName: t.Optional(t.String({ minLength: 1 })),
+  username: t.Optional(t.String({ minLength: 1, pattern: "\\S" })),
+  displayName: t.Optional(t.String({ minLength: 1, pattern: "\\S" })),
   avatarUrl: t.Optional(t.Nullable(t.String())),
   bio: t.Optional(t.Nullable(t.String())),
 });

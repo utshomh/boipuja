@@ -11,8 +11,8 @@ export const ErrorDto = t.Object({
 });
 
 export const PaginationQuery = t.Object({
-  page: t.Optional(t.Numeric()),
-  limit: t.Optional(t.Numeric()),
+  page: t.Optional(t.Numeric({ minimum: 1, multipleOf: 1 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100, multipleOf: 1 })),
 });
 
 export const PaginationMetaDto = t.Object({

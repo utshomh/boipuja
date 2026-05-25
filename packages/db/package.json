@@ -9,7 +9,9 @@
     "studio": "drizzle-kit studio"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./schema/*": "./src/schema/*.ts"
   },
   "dependencies": {
     "@boipuja/contracts": "workspace:*",

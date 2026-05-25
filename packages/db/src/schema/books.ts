@@ -40,7 +40,7 @@ export const authors = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
 
-    name: varchar("name", { length: 127 }).notNull(),
+    name: varchar("name", { length: 127 }).unique().notNull(),
 
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
