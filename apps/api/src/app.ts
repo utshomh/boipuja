@@ -2,6 +2,8 @@ import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 
+import { serverEnv } from "@boipuja/config/server";
+
 import { meRoutes } from "./routes/me";
 import { authRoutes } from "./routes/auth";
 import { booksRoutes } from "./routes/books";
@@ -10,7 +12,8 @@ import { healthRoutes } from "./routes/health";
 export const app = new Elysia({ prefix: "/api/v1" })
   .use(
     cors({
-      origin: true,
+      origin: serverEnv.CORS_ORIGIN,
+      credentials: true,
     }),
   )
   .use(

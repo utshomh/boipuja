@@ -28,12 +28,12 @@ export const BookDto = t.Object({
 });
 
 export const CreateBookBody = t.Object({
-  title: t.String({ minLength: 1 }),
+  title: t.String({ minLength: 1, pattern: "\\S" }),
   subtitle: t.Optional(t.String()),
   description: t.Optional(t.String()),
-  language: t.String({ minLength: 1 }),
+  language: t.String({ minLength: 1, pattern: "\\S" }),
   coverUrl: t.Optional(t.String()),
-  authors: t.Array(t.String({ minLength: 1 }), {
+  authors: t.Array(t.String({ minLength: 1, pattern: "\\S" }), {
     minItems: 1,
   }),
 });

@@ -4,7 +4,13 @@ import { describe, expect, test } from "bun:test";
 
 import { db } from "@boipuja/db";
 import { userBooks } from "@boipuja/db/schema";
-import { AuthUserResponseDto, BookDto, ErrorDto } from "@boipuja/contracts";
+import {
+  AuthUserResponseDto,
+  BookDto,
+  BooksSearchResponseDto,
+  CreateBookBody,
+  ErrorDto,
+} from "@boipuja/contracts";
 
 import {
   apiV1,
@@ -16,6 +22,8 @@ import {
 
 type AuthUserResponse = Static<typeof AuthUserResponseDto>;
 type BookResponse = Static<typeof BookDto>;
+type BooksSearchResponse = Static<typeof BooksSearchResponseDto>;
+type CreateBookInput = Static<typeof CreateBookBody>;
 type ErrorResponse = Static<typeof ErrorDto>;
 
 function uniqueSuffix() {
@@ -49,17 +57,20 @@ async function registerTestUser() {
   };
 }
 
-async function createTestBook(cookie: string) {
+async function createTestBook(
+  cookie: string,
+  overrides: Partial<CreateBookInput> = {},
+) {
   const unique = uniqueSuffix();
 
   const input = {
-    title: `Test Book ${unique}`,
-    subtitle: "A test subtitle",
-    description: "A test description",
-    language: "en",
-    coverUrl: `https://example.com/covers/${unique}.jpg`,
-    authors: [`Author ${unique}`, `Co Author ${unique}`],
-  };
+    title: overrides.title ?? `Test Book ${unique}`,
+    subtitle: overrides.subtitle ?? "A test subtitle",
+    description: overrides.description ?? "A test description",
+    language: overrides.language ?? "en",
+    coverUrl: overrides.coverUrl ?? `https://example.com/covers/${unique}.jpg`,
+    authors: overrides.authors ?? [`Author ${unique}`, `Co Author ${unique}`],
+  } satisfies CreateBookInput;
 
   const result = await apiV1.books.post(input, {
     headers: {
@@ -231,6 +242,73 @@ describe("books", () => {
     expect(result.status).toBe(422);
   });
 
+  test("POST /books rejects a whitespace-only title", async () => {
+    const { cookie } = await registerTestUser();
+
+    const result = await apiV1.books.post(
+      {
+        title: "   ",
+        language: "en",
+        authors: [`Author ${uniqueSuffix()}`],
+      },
+      {
+        headers: {
+          cookie,
+        },
+      },
+    );
+
+    expect(result.status).toBe(422);
+  });
+
+  test("POST /books rejects a whitespace-only author", async () => {
+    const { cookie } = await registerTestUser();
+
+    const result = await apiV1.books.post(
+      {
+        title: `Invalid Author Book ${uniqueSuffix()}`,
+        language: "en",
+        authors: ["   "],
+      },
+      {
+        headers: {
+          cookie,
+        },
+      },
+    );
+
+    expect(result.status).toBe(422);
+  });
+
+  test("POST /books normalizes blank optional fields to null", async () => {
+    const { cookie } = await registerTestUser();
+    const unique = uniqueSuffix();
+
+    const result = await apiV1.books.post(
+      {
+        title: `Blank Optional Fields Book ${unique}`,
+        subtitle: "   ",
+        description: "\t  ",
+        language: "en",
+        coverUrl: "   ",
+        authors: [`Blank Optional Fields Author ${unique}`],
+      },
+      {
+        headers: {
+          cookie,
+        },
+      },
+    );
+
+    expect(result.status).toBe(201);
+
+    const book = expectData<BookResponse>(result);
+
+    expect(book.subtitle).toBeNull();
+    expect(book.description).toBeNull();
+    expect(book.coverUrl).toBeNull();
+  });
+
   test("GET /books lists books", async () => {
     const { cookie } = await registerTestUser();
     const { book } = await createTestBook(cookie);
@@ -258,6 +336,213 @@ describe("books", () => {
     expect(listedBook).toBeTruthy();
     expect(listedBook?.authors).toHaveLength(2);
     expect(listedBook?.files).toEqual([]);
+  });
+
+  test("GET /books/search searches by title", async () => {
+    const { cookie } = await registerTestUser();
+    const unique = uniqueSuffix();
+    const titleNeedle = `Rare Title Needle ${unique}`;
+
+    const { book } = await createTestBook(cookie, {
+      title: titleNeedle,
+      authors: [`Title Search Author ${unique}`],
+    });
+
+    await createTestBook(cookie, {
+      title: `Unrelated Title ${unique}`,
+      authors: [`Unrelated Author ${unique}`],
+    });
+
+    const result = await apiV1.books.search.get({
+      query: {
+        query: titleNeedle,
+      },
+    });
+
+    expect(result.status).toBe(200);
+
+    const search = expectData<BooksSearchResponse>(result);
+
+    expect(search.items.map((item) => item.id)).toContain(book.id);
+    expect(search.items.every((item) => item.title.includes(titleNeedle))).toBe(
+      true,
+    );
+
+    expect(search.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1,
+    });
+  });
+
+  test("GET /books/search searches by author name", async () => {
+    const { cookie } = await registerTestUser();
+    const unique = uniqueSuffix();
+    const authorNeedle = `Rare Author Needle ${unique}`;
+
+    const { book } = await createTestBook(cookie, {
+      title: `Author Search Target Book ${unique}`,
+      authors: [authorNeedle],
+    });
+
+    await createTestBook(cookie, {
+      title: `Author Search Decoy Book ${unique}`,
+      authors: [`Different Author ${unique}`],
+    });
+
+    const result = await apiV1.books.search.get({
+      query: {
+        query: authorNeedle,
+      },
+    });
+
+    expect(result.status).toBe(200);
+
+    const search = expectData<BooksSearchResponse>(result);
+
+    expect(search.items.map((item) => item.id)).toContain(book.id);
+    expect(
+      search.items.every((item) =>
+        item.authors.some((author) => author.name === authorNeedle),
+      ),
+    ).toBe(true);
+
+    expect(search.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1,
+    });
+  });
+
+  test("GET /books/search filters by language", async () => {
+    const { cookie } = await registerTestUser();
+    const unique = uniqueSuffix();
+    const queryNeedle = `Language Filter Needle ${unique}`;
+
+    const { book: banglaBook } = await createTestBook(cookie, {
+      title: `${queryNeedle} Bangla`,
+      language: "bn",
+      authors: [`Bangla Author ${unique}`],
+    });
+
+    await createTestBook(cookie, {
+      title: `${queryNeedle} English`,
+      language: "en",
+      authors: [`English Author ${unique}`],
+    });
+
+    const result = await apiV1.books.search.get({
+      query: {
+        query: queryNeedle,
+        language: "bn",
+      },
+    });
+
+    expect(result.status).toBe(200);
+
+    const search = expectData<BooksSearchResponse>(result);
+
+    expect(search.items.map((item) => item.id)).toEqual([banglaBook.id]);
+    expect(search.items.every((item) => item.language === "bn")).toBe(true);
+
+    expect(search.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1,
+    });
+  });
+
+  test("GET /books/search paginates scoped results", async () => {
+    const { cookie } = await registerTestUser();
+    const unique = uniqueSuffix();
+    const queryNeedle = `Pagination Needle ${unique}`;
+
+    const createdBooks: BookResponse[] = [];
+
+    for (const index of [1, 2, 3]) {
+      const { book } = await createTestBook(cookie, {
+        title: `${queryNeedle} ${index}`,
+        authors: [`Pagination Author ${unique} ${index}`],
+      });
+
+      createdBooks.push(book);
+    }
+
+    await createTestBook(cookie, {
+      title: `Pagination Decoy ${unique}`,
+      authors: [`Pagination Decoy Author ${unique}`],
+    });
+
+    const firstPageResult = await apiV1.books.search.get({
+      query: {
+        query: queryNeedle,
+        page: 1,
+        limit: 2,
+      },
+    });
+
+    expect(firstPageResult.status).toBe(200);
+
+    const firstPage = expectData<BooksSearchResponse>(firstPageResult);
+
+    expect(firstPage.items).toHaveLength(2);
+    expect(firstPage.meta).toEqual({
+      page: 1,
+      limit: 2,
+      total: 3,
+      totalPages: 2,
+    });
+
+    const secondPageResult = await apiV1.books.search.get({
+      query: {
+        query: queryNeedle,
+        page: 2,
+        limit: 2,
+      },
+    });
+
+    expect(secondPageResult.status).toBe(200);
+
+    const secondPage = expectData<BooksSearchResponse>(secondPageResult);
+
+    expect(secondPage.items).toHaveLength(1);
+    expect(secondPage.meta).toEqual({
+      page: 2,
+      limit: 2,
+      total: 3,
+      totalPages: 2,
+    });
+
+    const returnedIds = [
+      ...firstPage.items.map((item) => item.id),
+      ...secondPage.items.map((item) => item.id),
+    ];
+
+    const createdIds = createdBooks.map((book) => book.id);
+
+    expect(new Set(returnedIds).size).toBe(3);
+    expect(returnedIds.sort()).toEqual(createdIds.sort());
+  });
+
+  test("GET /books/search rejects invalid pagination", async () => {
+    const pageResult = await apiV1.books.search.get({
+      query: {
+        page: 0,
+      },
+    });
+
+    expect(pageResult.status).toBe(422);
+
+    const limitResult = await apiV1.books.search.get({
+      query: {
+        limit: 101,
+      },
+    });
+
+    expect(limitResult.status).toBe(422);
   });
 
   test("GET /books/:id returns one book", async () => {

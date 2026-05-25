@@ -23,6 +23,9 @@
       ],
       "@boipuja/config/server": [
         "./packages/config/src/server-env.ts"
+      ],
+      "@boipuja/config/database": [
+        "./packages/config/src/database-env.ts"
       ]
     }
   }

@@ -31,33 +31,42 @@ export const meRoutes = new Elysia()
   )
   .patch(
     "/me",
-    async ({ body, user, set }) => {
-      const username = body.username
-        ? normalizeToLowerCase(body.username)
-        : user.username;
-      const displayName = body.displayName
-        ? normalize(body.displayName)
-        : undefined;
+    async ({ body, user, status }) => {
+      const updates: Partial<typeof users.$inferInsert> = {
+        updatedAt: new Date(),
+      };
 
-      const [existingUser] = await db
-        .select()
-        .from(users)
-        .where(and(eq(users.username, username), ne(users.id, user.id)));
+      if ("username" in body && body.username !== undefined) {
+        const username = normalizeToLowerCase(body.username);
 
-      if (existingUser) {
-        set.status = 409;
-        return conflict("Username is already in use");
+        const [existingUser] = await db
+          .select()
+          .from(users)
+          .where(and(eq(users.username, username), ne(users.id, user.id)))
+          .limit(1);
+
+        if (existingUser) {
+          return status(409, conflict("Username is already in use"));
+        }
+
+        updates.username = username;
+      }
+
+      if ("displayName" in body && body.displayName !== undefined) {
+        updates.displayName = normalize(body.displayName);
+      }
+
+      if ("avatarUrl" in body) {
+        updates.avatarUrl = body.avatarUrl;
+      }
+
+      if ("bio" in body) {
+        updates.bio = body.bio;
       }
 
       const [updatedUser] = await db
         .update(users)
-        .set({
-          username,
-          displayName,
-          avatarUrl: body.avatarUrl,
-          bio: body.bio,
-          updatedAt: new Date(),
-        })
+        .set(updates)
         .where(eq(users.id, user.id))
         .returning();
 

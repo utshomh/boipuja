@@ -7,7 +7,7 @@ import {
   ilike,
   inArray,
   or,
-  SQL,
+  type SQL,
 } from "drizzle-orm";
 
 import { db, userBooks } from "@boipuja/db";
@@ -33,29 +33,6 @@ import {
   toBookDto,
   toBookDtos,
 } from "../mappers/books";
-
-async function getOrCreateAuthor(name: string) {
-  const normalizedName = normalizeBookText(name);
-
-  const [existingAuthor] = await db
-    .select()
-    .from(authors)
-    .where(eq(authors.name, normalizedName))
-    .limit(1);
-
-  if (existingAuthor) {
-    return existingAuthor;
-  }
-
-  const [createdAuthor] = await db
-    .insert(authors)
-    .values({
-      name: normalizedName,
-    })
-    .returning();
-
-  return createdAuthor;
-}
 
 async function getAuthorsForBook(bookId: string) {
   const rows = await db
@@ -203,12 +180,35 @@ export const booksRoutes = new Elysia({ prefix: "/books" })
             subtitle: normalizeOptionalBookText(body.subtitle),
             description: normalizeOptionalBookText(body.description),
             language: normalizeBookText(body.language),
-            coverUrl: body.coverUrl ?? null,
+            coverUrl: normalizeOptionalBookText(body.coverUrl),
           })
           .returning();
 
         const authorRows = await Promise.all(
-          authorNames.map((authorName) => getOrCreateAuthor(authorName)),
+          authorNames.map(async (authorName) => {
+            const [createdAuthor] = await tx
+              .insert(authors)
+              .values({
+                name: authorName,
+              })
+              .onConflictDoNothing()
+              .returning();
+
+            if (createdAuthor) return createdAuthor;
+
+            const [existingAuthor] = await tx
+              .select()
+              .from(authors)
+              .where(eq(authors.name, authorName))
+              .limit(1);
+
+            if (!existingAuthor)
+              throw new Error(
+                `Author could not be created or found: ${authorName}`,
+              );
+
+            return existingAuthor;
+          }),
         );
 
         await tx.insert(bookAuthors).values(
